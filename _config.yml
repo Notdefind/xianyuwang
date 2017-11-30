@@ -78,5 +78,5 @@ theme: next
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo: https://github.com/wangkang666/wangkang666.github.io.git
+  repo: https://github.com/Notdefind/Notdefind.github.io.git
   branch: master

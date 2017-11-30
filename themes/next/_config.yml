@@ -48,7 +48,7 @@ index_with_subtitle: false
 menu:
   home: /
   archives: /archives
-  about: user
+  about: /user
   # categories: /categories/
   # about: /about/
   #sitemap: /sitemap.xml
@@ -93,7 +93,7 @@ scheme: Gemini
 # Value is the target link (E.g. GitHub: https://github.com/iissnan)
 social:
   #LinkLabel: Link
-  GitHub: https://github.com/wangkang666
+  GitHub: https://github.com/Notdefind
   微博: http://weibo.com/u/5333359020
 # Social Links Icons
 # Icon Mapping:
