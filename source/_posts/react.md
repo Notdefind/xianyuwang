@@ -129,3 +129,42 @@ UI -> action -> dispatch -> reducer -> stroe -> UI
 使用redux则不会出现此类问题,相对较为安全,带来的困恼则是由于redux数据存在于内存中,
 由于单页应用的原因,当页面刷新后内存被释放,所有stroe中数据将被清空。
 有些数据依赖于stroe,会导致报错。(react native端木有直接刷新的概念,则不会出现此类问题)
+
+4: 在reducer中更新stroe的问题
+
+在stroe中更新一个对象有些时候会诡异的失效:
+
+```javascript
+// 之前的数据是 list: {count: 1}
+[ADD_COUNT]:  (state, action) => {
+  const list = state.list.count ++
+  console.log(state.list) // 2
+  return { list }
+}
+
+<div>{list}</div> // 1
+```
+在更新完后stroe中的数据变化了,但是UI并没有改变?
+这是因为UI更新并不是对比stroe中的数据修改,而是对比stroe中数据内存地址的修改。
+内存地址没变,所以UI并不会更新。
+
+JS中对象和字符数字类型有一个地方不同,就是内存地址问题。
+
+类似于
+```javascript
+var a = {a: 'a'};
+var b = a;
+b.a = 'b'
+console.log(a) // {a: 'b'}
+
+var str1 = '1';
+var str2 = str1;
+str2 = '2'
+console.log(str1) // 1
+
+```
+这属于对象引用,a 和 b 引用的都是内存中的同一个地址,所以 修改b时 a也会被修改。
+
+对象clone 分为深度clone,和浅clone。 浅clone会复制对象的内容和同一个内存地址,深clone 则是复制内容,和重新开辟一个新内存。
+(有点扯远了。。。)
+在reducer中要可以使用{...Object}来解决。
