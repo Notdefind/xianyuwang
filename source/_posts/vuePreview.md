@@ -25,7 +25,6 @@ import PhotoSwipeUIDefault from 'photoswipe/dist/photoswipe-ui-default'
 const VuePreview = {
   install (Vue, options) {
     Vue.component('VuePreview', {
-      // 混入HTML模板
       mixins: [PreviewComponent],
       props: {
         slides: Array
@@ -78,6 +77,7 @@ const VuePreview = {
               gallery.init();
               resolve('success');
             }).catch(error => {
+              console.log(error)
               reject(error);
             })
           });
@@ -87,46 +87,73 @@ const VuePreview = {
         parseThumbnailElements (el) {
           // 全部图片加载完再打开图片插件
           return new Promise((resolve, reject) => {
-            let thumbElements = el.childNodes
-            let numNodes = thumbElements.length
-            let items = []
-            let figureEl
-            let linkEl
-            let size
-            let item
-            let count = 0;
+            let thumbElements = el.childNodes;
+            let numNodes = thumbElements.length;
+            let disposeItems = [];
+            let originalItems = [];
+            let resultList = [];
+            let successCount = 0;
+            let errorCount = 0;
+
             for (let i = 0; i < numNodes; i++) {
+              let size
+              let imageItem
+              let figureEl
+              let linkEl
               figureEl = thumbElements[i] // <figure> element
               // include only element nodes
               if (figureEl.nodeType !== 1) {
                 continue
               }
-              linkEl = figureEl.children[0] // <a> element
 
+              linkEl = figureEl.children[0] // <a> element
               const image = new Image();
               // 进行自适应处理
               image.src = linkEl.href;
+              originalItems.push({src: linkEl.href})
               image.onload = () => {
-                // 获取图片原始宽高
                 size = [image.naturalWidth, image.naturalHeight];
-                item = {
+                imageItem = {
                   src: linkEl.getAttribute('href'),
                   w: parseInt(size[0], 10),
                   h: parseInt(size[1], 10)
                 }
                 if (figureEl.children.length > 1) {
                   // <figcaption> content
-                  item.title = figureEl.children[1].innerHTML
+                  imageItem.title = figureEl.children[1].innerHTML
                 }
                 if (linkEl.children.length > 0) {
                   // <img> thumbnail element, retrieving thumbnail url
-                  item.msrc = linkEl.children[0].getAttribute('src')
+                  imageItem.msrc = linkEl.children[0].getAttribute('src')
                 }
-                item.el = figureEl // save link to element for getThumbBoundsFn
-                items.push(item)
-                count ++;
-                if (count == numNodes) {
-                  resolve(items)
+                imageItem.el = figureEl // save link to element for getThumbBoundsFn
+                disposeItems.push(imageItem)
+
+                successCount ++;
+                // 全部加载成功
+                if (successCount == numNodes) {
+                  // 处理加载顺序不同问题
+                  // 加载后数组 与原数组对比 最终返回一个排序之后的数组
+                  originalItems.map((originalItme, index) => {
+                    if (originalItme.src === disposeItems[index].src) {
+                      resultList.push(disposeItems[index]);
+                    } else {
+                      const item = disposeItems.find(item => {
+                        return item.src === originalItme.src;
+                      });
+                      resultList.push(item);
+                    }
+                  })
+                  resolve(resultList);
+                }
+              }
+              // 某些图片加载失败 只打开加载成功的图片
+              image.onerror = () => {
+                errorCount ++;
+                if (successCount + errorCount == numNodes) {
+                  resolve(disposeItems);
+                } else if (errorCount == numNodes) {
+                  reject('图片加载失败')
                 }
               }
             }
@@ -193,6 +220,7 @@ if (typeof window !== 'undefined' && window.Vue) {
 }
 
 export default VuePreview
+
 
 ```
 #### preview.vue
@@ -364,7 +392,7 @@ export default {
 ### 问题点&新功能点：
 
 #### 1 hash模式下微信新版本会显示出底部导航
-![问题图片](/images/rotateImages/1531454559129751.png)
+![问题图片](./1531454559129751.png)
 * 问题原因 预览插件打开hash模式后在url上会带上pid gid 记录打打开图片的索引
 * 由于url变化触发了微信内置浏览器导航机制，所以右下角显示出导航栏
 * 解决方案，关闭hash模式
@@ -395,6 +423,9 @@ export default {
 * [PhotoSwipe提供选项](http://photoswipe.com/documentation/options.html) 
 
 ###最终效果
-![](/images/rotateImages/WechatIMG112.jpeg)
+![](./WechatIMG112.jpeg)
+
+
+
 
 
