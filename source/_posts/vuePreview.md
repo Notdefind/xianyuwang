@@ -392,7 +392,7 @@ export default {
 ### 问题点&新功能点：
 
 #### 1 hash模式下微信新版本会显示出底部导航
-![问题图片](./1531454559129751.png)
+![问题图片](/images/rotateImages/1531454559129751.png)
 * 问题原因 预览插件打开hash模式后在url上会带上pid gid 记录打打开图片的索引
 * 由于url变化触发了微信内置浏览器导航机制，所以右下角显示出导航栏
 * 解决方案，关闭hash模式
@@ -423,7 +423,7 @@ export default {
 * [PhotoSwipe提供选项](http://photoswipe.com/documentation/options.html) 
 
 ###最终效果
-![](./WechatIMG112.jpeg)
+![](/images/rotateImages/WechatIMG112.jpeg)
 
 
 
