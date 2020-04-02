@@ -15,3 +15,7 @@ hexo clean
 hexo generate
 
 hexo deploy
+
+// 发布脚本 
+chmod 777 ./deploy.sh
+./deploy.sh
